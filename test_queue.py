@@ -12,18 +12,16 @@ __license__ = "GNU GPL 3.0 or later"
 import heapq, logging, string, sys
 log = logging.getLogger(__name__)
 
-if sys.version_info[0] == 2 and sys.version_info[1] < 7:
+if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
     import unittest2 as unittest
-    unittest         # Silence erroneous PyFlakes warning
-else:
-    import unittest  # pragma: no cover
+    unittest  # Silence erroneous PyFlakes warning
+else:                                                     # pragma: no cover
+    import unittest
 
-try:
+try:                                                      # pragma: no cover
     from collections import OrderedDict
-
-    #Silence erroneous PyFlakes warning
-    OrderedDict      # pragma: no cover
-except ImportError:  # pragma: no cover
+    OrderedDict  # Silence erroneous PyFlakes warning
+except ImportError:                                       # pragma: no cover
     from ordereddict import OrderedDict
 
 from queue import FairQueue
