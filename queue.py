@@ -52,7 +52,7 @@ class FairQueue(object):
 
             - ``dict.pop`` may take 1 or 2 arguments, while ``pop`` may take 0
               or 1.
-            - ``pop``'s return value is a tuple most equivalent to ``dict.popitem``
+            - ``pop``'s return value is similar to that of ``dict.popitem``
             - After calling ``pop``, the number of keys in the queue may or may
               not have decreased by 1. With ``dict.pop`` it will always
               decrease by 1.
@@ -61,8 +61,8 @@ class FairQueue(object):
            than ``len(list(queue))``.
     :todo: Inherit from ``UserDict.DictMixin`` and unit test what it adds.
     :todo: Once I've got the fserve working, come back and add the support for
-           allowing people to receive multiple files in a row to "catch up" with
-           those who requested much bigger files.
+           allowing people to receive multiple files in a row to "catch up"
+           with those who requested much bigger files.
     """
     def __init__(self, contents=None, priority_cb=None):
         """Initialize the queue, storing any provided initial state
@@ -74,7 +74,7 @@ class FairQueue(object):
             iterable returning ``(bucket, list_of_values)`` pairs.
           priority_cb : ``function(key)``
             A callback which will be used to determine a bucket's new placement
-            when reordering the queue. Lesser values are treated as more urgent.
+            when updating the queue. Lesser values are considered more urgent.
 
             ``lambda key: time.time()`` will be used if none is provided.
         """
@@ -90,7 +90,7 @@ class FairQueue(object):
         elif hasattr(contents, 'items'):
             contents = contents.items()
 
-        #TODO: Compare performance of alternate ways to do this (zip and heapify?)
+        #TODO: Compare performance of alternate algorithms (zip and heapify?)
         for key, values in contents:
             if key in self._subqueues:
                 log.warning("Bucket already queued. Merging: %s", key)
@@ -196,26 +196,26 @@ class FairQueue(object):
             (Overrides ``IndexError``)
         """
 
-        bucket_id, result = key, None
+        heap_id, result = key, None
         while result is None:
             if key is not None and not key in self._subqueues:
                 raise KeyError("key not found: %r" % (key,))
             elif not self._buckets:
                 raise IndexError("Queue is empty")
 
-            if bucket_id is None:
-                _, bucket_id = heapq.heappop(self._buckets)
+            if heap_id is None:
+                _, heap_id = heapq.heappop(self._buckets)
             else:
-                for entry in self._find_key_in_heap(bucket_id):
+                for entry in self._find_key_in_heap(heap_id):
                     self._buckets.remove(entry)
-            heapq.heappush(self._buckets, (self.priority_cb(bucket_id), bucket_id))
+            heapq.heappush(self._buckets, (self.priority_cb(heap_id), heap_id))
 
-            if bucket_id in self._subqueues:
-                if self._subqueues[bucket_id]:
-                    result = bucket_id, self._subqueues[bucket_id].pop(0)
-                if not self._subqueues[bucket_id]:
-                    del self[bucket_id]
-                    bucket_id = None
+            if heap_id in self._subqueues:
+                if self._subqueues[heap_id]:
+                    result = heap_id, self._subqueues[heap_id].pop(0)
+                if not self._subqueues[heap_id]:
+                    del self[heap_id]
+                    heap_id = None
 
         return result
 
@@ -247,9 +247,9 @@ class FairQueue(object):
             `load` produces.
         """
         if not isinstance(state[0], list):
-            raise TypeError("key heap in saved state must be a list")
+            raise TypeError("key heap in state must be a list")
         if not isinstance(state[1], dict):
-            raise TypeError("subqueues in saved state must be provided as a dict")
+            raise TypeError("subqueues in state must be provided as a dict")
 
         obj = cls(**kwargs)
         obj._buckets, obj._subqueues = state
