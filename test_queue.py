@@ -355,6 +355,23 @@ class TestPopulatedQueue(BaseTestQueue):
         self.assertEqual(len(self.queue), total_entries,
                 "Length of the queue must sum the lengths of its subqueues")
 
+    def test_nonzero(self):
+        """Test all branches of `FairQueue.__nonzero__`"""
+        self.assertTrue(self.queue)
+
+        # Test the hardest-to-reach branch
+        for key in self.queue:  # pragma: no branch
+            self.queue[key] = []
+            break
+        self.assertTrue(self.queue)
+
+        for key in self.queue:
+            self.queue[key] = []
+        self.assertFalse(self.queue)
+
+        self.queue.clear()
+        self.assertFalse(self.queue)
+
     def test_ordering_basic(self):
         """Test ordering behaviour with only non-specific pop() calls"""
         previous = None
@@ -414,7 +431,7 @@ class TestPopulatedQueue(BaseTestQueue):
 
         for user in self.users.values():
             while user.bucket_id in self.queue:
-                for entry in self.queue._buckets:
+                for entry in self.queue._buckets:  # pragma: no branch
                     if entry[1] == user.bucket_id:
                         old_hash_record = entry
                         break
@@ -432,6 +449,15 @@ class TestPopulatedQueue(BaseTestQueue):
 
         # Verify deferred subqueue removal
         self._check_invariants()
+
+    def test_pop_safety(self):
+        """Test pop() when heap and subqueues are inconsistent"""
+
+        # Test the hardest-to-reach branch in pop()
+        for key in self.queue:  # pragma: no branch
+            del self.queue._subqueues[key]
+            break
+        self.queue.pop()
 
     def test_setitem(self):
         """Test `FairQueue.__setitem__`"""

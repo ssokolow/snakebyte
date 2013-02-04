@@ -135,7 +135,7 @@ class FairQueue(object):
     def __iter__(self):
         """Iterate through all non-empty bucket IDs (keys)"""
         for _, key in sorted(self._buckets):
-            if self._subqueues.get(key):
+            if self._subqueues.get(key):  # pragma: no branch
                 yield key
 
     def __len__(self):
@@ -220,6 +220,11 @@ class FairQueue(object):
                 if not self._subqueues[heap_id]:
                     del self[heap_id]
                     heap_id = None
+            else:
+                log.error("Key in heap but not subqueues: %s", heap_id)
+                for entry in self._find_key_in_heap(heap_id):
+                    self._buckets.remove(entry)
+                heap_id = None
 
         return result
 
