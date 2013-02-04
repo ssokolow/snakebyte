@@ -9,8 +9,14 @@
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __license__ = "GNU GPL 3.0 or later"
 
-import heapq, logging, string, unittest
+import heapq, logging, string, sys
 log = logging.getLogger(__name__)
+
+if sys.version_info.major == 2 and sys.version_info.minor < 7:
+    import unittest2 as unittest
+    unittest         # Silence erroneous PyFlakes warning
+else:
+    import unittest
 
 try:
     from collections import OrderedDict
