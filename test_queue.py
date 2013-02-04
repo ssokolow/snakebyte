@@ -7,7 +7,6 @@
 """
 
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
-__version__ = "0.1"
 __license__ = "GNU GPL 3.0 or later"
 
 import heapq, logging, string, unittest
@@ -38,44 +37,57 @@ class MockUser(object):
     def is_satisfied(self):
         return self.done == self.goal
 
-    def as_fresh_tuple(self):
-        """Return a tuple suitable for populating queues when
+    def __iter__(self):
+        """Used for generating a tuple suitable for populating queues when
         gathered in an iterable and fed to __init_.
 
         The "fresh" indicates that this ignores `request` and `received`.
         """
-        return self.bucket_id, self.goal[:]
+        yield self.bucket_id
+        yield self.goal[:]
 
-    #TODO: Still need to decide how to implement testing of ordering
+    #TODO: Still need to decide how to implement testing of ordering fairness
 
 class BaseTestQueue(unittest.TestCase):
     """Code common to tests which start with empty or populated queues."""
-    chars = string.digits + string.ascii_letters #: For building filenames
-    files = ['file%s' % chars[x] for x in range(0,6)]
+    nonexistant_keys = ('nonexistant key', ('nonexistant', 'key'))
     priority_cb = None
     #priority_cb = staticmethod(lambda x:5)
     #TODO: Test with constant, monotonic increase, variable increase, and pseudo-random
+
+    chars = string.digits + string.ascii_letters #: For building filenames
+    files = ['file%s' % chars[x] for x in range(0,6)]
+    uids  = [('network%d' % i, 'user%d' % j) for i in range(0,2) for j in range(0,5)]
+
+    # Add False-evaluating, non-None keys for robustness testing
+    uids += [False, 0]
 
     def setUp(self):
         super(BaseTestQueue, self).setUp()
 
         self.users = OrderedDict()
-        for i in range (0,2):
-            for j in range(0,5):
-                user = MockUser(('network%d' % i, 'user%d' % j), self.files)
-                self.users[user.bucket_id] = user
+        for uid in self.uids:
+            user = MockUser(uid, self.files)
+            self.users[user.bucket_id] = user
+
+        self.assertIn(0, self.users, "Mock data generation failure (user: 0)")
+        self.assertIn(False, self.users, "Mock data generation failure (user: False")
 
     def tearDown(self):
         self._check_invariants()
 
     def _check_invariants(self, target_count=None, queue=None):
-        """Tests which should pass after every change to the queue."""
+        """Tests which should pass after every change to the queue.
+
+        :Parameters:
+         - `target_count` If provided, also verify bucket counts.
+        """
         queue = queue or self.queue
 
         self.assertEqual(len(queue._buckets), len(queue._subqueues),
                 "There should be exactly one subqueue per entry in the bucket heap")
         self.assertTrue(all(queue._subqueues.values()),
-                "Subqueues should be removed when their last item is retrieved")
+            "Empty subqueues should expire immediately for maximum fairness")
 
         if target_count is not None:
             self.assertEqual(len(queue._buckets), target_count,
@@ -93,20 +105,21 @@ class BaseTestQueue(unittest.TestCase):
         users_in_heap = [x[1] for x in sorted(self.queue._buckets)]
 
         if isinstance(other, FairQueue):
+            self.assertEquals(len(self.queue), len(other))
+            self.assertEquals(bool(self.queue), bool(other))
+
             users_in_other_heap = [x[1] for x in sorted(other._buckets)]
             self.assertEquals(users_in_heap, users_in_other_heap,
                     "Heap ordering not equivalent")
-
-            other = other._subqueues
         else:
             other = OrderedDict((x, other[x].goal) for x in other)
 
         for user in other:
             self.assertIn(user, users_in_heap,
                     "One or more buckets missing from the heap")
-            self.assertIn(user, self.queue._subqueues,
+            self.assertIn(user, self.queue,
                     "One or more buckets missing from the subqueue dict")
-            self.assertEqual(other[user], self.queue._subqueues[user],
+            self.assertEqual(other[user], self.queue[user],
                     "Must not drop or reorder requests within the same bucket")
 
         for user in users_in_heap:
@@ -114,21 +127,19 @@ class BaseTestQueue(unittest.TestCase):
         for user in self.queue._subqueues:
             self.assertIn(user, other, "Queue has subqueues not present in other")
 
-    def _get_init_data(self):
-        return [x.as_fresh_tuple() for x in self.users.values()]
-
-#TODO: Use something like a metaclass or closure to run this stuff once per priority_cb
 class TestEmptyQueue(BaseTestQueue):
     def setUp(self):
         super(TestEmptyQueue, self).setUp()
         self.queue = FairQueue(priority_cb=self.priority_cb)
 
+        self.assertFalse(self.queue, "Queue did not start out evaluating False")
+        self.assertEqual(len(self.queue), 0, "Queue started out with nonzero length")
         self.assertFalse(self.queue._buckets, "Queue did not start empty")
         self.assertFalse(self.queue._subqueues, "Queue did not start empty")
 
     def test_initial_data(self):
         """Test setting up a queue with initial data"""
-        data = self._get_init_data()
+        data = self.users.values()
         for dtype in (lambda x:x, list, dict, OrderedDict):
             self.queue = FairQueue(
                     contents=dtype(data),
@@ -147,62 +158,63 @@ class TestEmptyQueue(BaseTestQueue):
         self._check_invariants(2)
         self._check_equivalence(FairQueue(contents=[(1,[1,2,3,6]),(3,[3,4])]))
 
-    def test_invalid_get(self):
-        """Test reaction to `FairQueue.get` on empty queue"""
-        self.assertRaises(IndexError, self.queue.get)
-        self.assertRaises(KeyError, self.queue.get, ('test', 'tuple', 'with', '%r'))
+    def test_invalid_pop(self):
+        """Test reaction to `FairQueue.pop` on empty queue"""
+        self.assertRaises(IndexError, self.queue.pop)
+        self.assertRaises(KeyError, self.queue.pop, ('test', 'tuple', 'with', '%r'))
 
-    def test_invalid_get_bucket(self):
-        """Test reaction to `FairQueue.get_bucket` on a nonexistant ID"""
-        self.assertRaises(KeyError, self.queue.get_bucket, 'nonexistant')
-        self.assertRaises(KeyError, self.queue.get_bucket, ('test', 'tuple'))
+    def test_invalid_getitem(self):
+        """Test reaction to `FairQueue.__getitem__` on a nonexistant ID"""
+        for key in self.nonexistant_keys:
+            self.assertRaises(KeyError, self.queue.__getitem__, key)
 
     def test_invalid_load(self):
         """Test reaction to invalid `FairQueue.load` input"""
         self.assertRaises(TypeError, FairQueue.load, ({}, {}))
         self.assertRaises(TypeError, FairQueue.load, ([], []))
 
-    def test_invalid_put(self):
-        """Test reaction to unhashable ``bucket_id``"""
-        self.assertRaises(TypeError, self.queue.put, {}, None)
+    def test_invalid_push(self):
+        """Test reaction to unhashable ``key`` in `FairQueue.push`"""
+        self.assertRaises(TypeError, self.queue.push, {}, None)
         self.assertFalse(self.queue._buckets,
                 "Refusal of invalid keys must not alter the bucket heap")
         self.assertFalse(self.queue._subqueues,
                 "Refusal of invalid keys must not alter the subqueue dict")
 
         # Now make sure it doesn't bother existing content
-        self.queue.put(1,2)
+        self.queue.push(1,2)
         _b, _q = self.queue._buckets[:], self.queue._subqueues.copy()
 
-        self.assertRaises(TypeError, self.queue.put, {}, None)
+        self.assertRaises(TypeError, self.queue.push, {}, None)
         self.assertEqual(_b, self.queue._buckets,
                 "Refusal of invalid keys must not alter the bucket heap")
         self.assertEqual(_q, self.queue._subqueues,
                 "Refusal of invalid keys must not alter the subqueue dict")
 
-
-    def test_put(self):
-        """Test behaviour of valid `FairQueue.put` calls"""
+    def test_push(self):
+        """Test behaviour of valid `FairQueue.push` calls"""
         target_count = 0
         for user in self.users.values():
             self._check_invariants(target_count)
 
             #TODO: Need to test with mock time.time() in case of low-resolution timers.
             for entry in iter(user.request, None):
-                self.queue.put(user.bucket_id, entry)
+                before = len(self.queue)
+                self.queue.push(user.bucket_id, entry)
+                self.assertEquals(before+1, len(self.queue))
 
             target_count += 1
         self._check_equivalence(self.users)
 
     def test_populate_equivalence(self):
-        """Test that `FairQueue.__init__` and `FairQueue.put` affect order similarly"""
+        """Test that `FairQueue.__init__` and `FairQueue.push` affect order similarly"""
         populated_queue = FairQueue(
-            contents=self._get_init_data(),
+            contents=self.users.values(),
             priority_cb=self.priority_cb)
 
         for user in self.users.values():
             for entry in iter(user.request, None):
-                self.queue.put(user.bucket_id, entry)
+                self.queue.push(user.bucket_id, entry)
 
         self._check_equivalence(populated_queue)
 
@@ -210,71 +222,217 @@ class TestPopulatedQueue(BaseTestQueue):
     def setUp(self):
         super(TestPopulatedQueue, self).setUp()
         self.queue = FairQueue(priority_cb=self.priority_cb,
-            contents=self._get_init_data())
+            contents=self.users.values())
 
         self._check_invariants()
+        self.assertTrue(self.queue, "Queue did not start out evaluating True")
+        self.assertTrue(len(self.queue), "Queue started out with zero length")
         self.assertTrue(self.queue._buckets, "Queue started empty")
         self.assertTrue(self.queue._subqueues, "Queue started empty")
         self.assertTrue(all(x for x in self.queue._subqueues.values()),
                 "Queue started with empty subqueues")
 
+    def test_clear(self):
+        """Test `FairQueue.clear`"""
+        self.queue.clear()
+        self.assertEqual(len(self.queue), 0, "Nonzero queue length after clear()")
+        self.assertFalse([x for x in self.queue], "Content in queue after clear()")
+
+    def test_contains(self):
+        """Test `FairQueue.__contains__` via ``key in queue``"""
+        for key in self.nonexistant_keys:
+            self.assertNotIn(key, self.queue,
+                "__contains__ should only return values actually in the queue")
+        for key in self.queue:
+            self.assertIn(key, self.queue,
+                "All entries returned by __iter__ should be 'in' the queue")
+        for key in self.users:
+            self.assertIn(key, self.queue,
+                "All entries added to the queue should be 'in' it")
+
     def test_dump_load_symmetry(self):
         """Test symmetry of `FairQueue.dump` and `FairQueue.load`"""
         dump = self.queue.dump()
+
         newQueue = self.queue.load(dump)
-        #TODO: Also need to test load's **kwargs
-
         self._check_equivalence(newQueue)
-        #TODO: Also needs an ordering check
 
-    def test_get(self):
-        """Test behaviour of valid `FairQueue.get` calls without ``bucket_id``"""
-        #TODO: Maybe the queue should support being iterable
-        try:
-            for bucket_id, entry in iter(self.queue.get, None):
-                self._check_invariants()
-                self.users[bucket_id].received(entry)
-        except IndexError:
-            pass #TODO: Figure out a better way to determine end of queue
+        newQueue = self.queue.load(dump, priority_cb=self.queue.priority_cb)
+        self.assertIs(self.queue.priority_cb, newQueue.priority_cb)
+        self._check_equivalence(newQueue)
+
+        self.assertIsNot(self.queue._buckets, newQueue._buckets,
+                "dump() must copy the bucket heap")
+        self.assertIsNot(self.queue._subqueues, newQueue._subqueues,
+                "dump() must copy the subqueue list")
+
+    def test_delitem(self):
+        """Test `FairQueue.__delitem__`"""
+        for key in self.nonexistant_keys:
+            self.assertRaises(KeyError, self.queue.__delitem__, key)
+
+        for user in self.users:
+            self.assertIn(user, self.queue)
+            del self.queue[user]
+            self._check_invariants()
+            self.assertNotIn(user, self.queue,
+                    "'del self.queue[user]' did not remove 'user' from the queue")
+
+    def test_getitem(self):
+        """Test `FairQueue.__getitem__`"""
+        # Just to make sure it doesn't behave differently than an empty queue
+        for key in self.nonexistant_keys:
+            self.assertRaises(KeyError, self.queue.__getitem__, key)
+
+        for user in self.users.values():
+            bucket = self.queue[user.bucket_id]
+            self.assertEqual(bucket, user.goal)
+            self._check_invariants()
+
+            bucket[0], bucket[1] = bucket[1], bucket[0]
+            self.assertEqual(bucket, self.queue[user.bucket_id],
+                "Mutations to the list returned by __getitem__ must persist.")
+
+            goal_item = bucket[0]
+            self.assertEqual(self.queue.pop(user.bucket_id)[1], goal_item,
+                "Mutations to lists returned by __getitem__ must affect pop()")
+
+    def test_getitem_safety(self):
+        """Test emptying a subqueue using `FairQueue.__getitem__`"""
+        # Empty the next subqueue in line
+        key = self.queue._buckets[0][1]
+        bucket = self.queue[key]
+        while bucket:
+            bucket.pop()
+        self.assertFalse(self.queue[key])
+
+        # Force queue expiry
+        next_id = self.queue._buckets[1][1]
+        self.assertEqual(self.queue.pop()[0], next_id,
+            "Unexpected return from pop() when passing through empty subqueue")
+
+        # Verify the cleanup occurred
+        self._check_invariants()
+
+    def test_invalid_pop(self):
+        """Test reaction to `FairQueue.pop` on populated queue"""
+        for key in self.nonexistant_keys:
+            self.assertRaises(KeyError, self.queue.pop, key)
+
+    def test_iter(self):
+        """Test queue iteration"""
+        #TODO: Once we've got DictMixin, use assertEqual directly on queues.
+        self.assertEqual([x for x in self.queue], [x for x in self.users],
+                "Queue iteration must return a list of keys (subqueue names)")
+
+        self.queue.push('foo', [1,2,3])
+        self.queue.push('bar', [1,2,3])
+        self.assertEqual(list(self.queue), list(self.users) + ['foo', 'bar'],
+                "Queue iteration must be in priority order")
+
+    def test_keys(self):
+        """Test `FairQueue.keys`"""
+        self.assertEqual(self.queue.keys(), [x for x in self.queue],
+                "Keys must return the same keys in the same order as iteration")
+
+    def test_len(self):
+        """Test `FairQueue.__len__` via ``len(queue)``"""
+        total_entries = sum(len(self.queue[x]) for x in self.queue)
+        self.assertEqual(len(self.queue), total_entries,
+                "Length of the queue must be the sum of the lengths of its subqueues")
+
+    def test_ordering_basic(self):
+        """Test ordering behaviour with only non-specific pop() calls"""
+        previous = None
+        for i in range(0, len(self.queue)):
+            key, value = self.queue.pop()
+            self.assertNotEqual(key, previous,
+                    "At this stage in its development, the queue should never allow"
+                    "the same bucket to be the source of two pop() calls in a row "
+                    "when all subqueues are of equal length")
+
+    def test_ordering_advanced(self):
+        """Test ordering behaviour with subqueue-specific pop() calls"""
+        ordered_heap = list(sorted(self.queue))
+
+        for pos in (0, -1, len(ordered_heap)/2, None, Ellipsis):
+            if pos is None:
+                key, value = self.queue.pop()
+            elif pos is Ellipsis:
+                key, value = ('foo', ['bar', 'baz'])
+            else:
+                key, value = self.queue.pop(ordered_heap[pos])
+            self.queue.push(key, value)
+
+            last_user = list(self.queue)[-1]
+            self.assertEquals(key, last_user,
+                "Users who've just been serviced/added should be at the end of queue"
+                " (Last user was %r but expected %r)" % (last_user, key))
+
+    def test_pop(self):
+        """Test behaviour of valid `FairQueue.pop` calls without ``key``"""
+        while self.queue:
+            before = len(self.queue)
+            old_hash_record = self.queue._buckets[0]
+
+            key, value = self.queue.pop()
+
+            self.assertNotIn(old_hash_record, self.queue._buckets,
+                    "Pop must always update the bucket's ordering key in the hash")
+
+            self.assertEquals(before-1, len(self.queue))
+            self._check_invariants()
+            self.users[key].received(value)
 
         unsatisfied = [x for x in self.users.values() if not x.is_satisfied()]
         self.assertFalse(unsatisfied,
                 'Not all users received their files:\n\t%s' %
                 '\n\t'.join('%s: %s, %s' % (x.bucket_id, x.goal, x.done)
                     for x in unsatisfied))
-        #TODO: Also need to test ordering
-        #TODO: Also need to test that the effect of removing and adding
-        #      user always results in an equal or newer timestamp.
-        #TODO: Decide how to ensure that mutating the list to emptiness
-        #      can't wedge the queue.
 
-    def test_get_with_id(self):
-        """Test behaviour of `FairQueue.get` calls with ``bucket_id`` parameter"""
-        self.assertRaises(KeyError, self.queue.get, 'nonexistant')
+        # Verify deferred subqueue removal
+        self._check_invariants()
+
+    def test_pop_with_id(self):
+        """Test behaviour of `FairQueue.pop` calls with ``key`` parameter"""
+        for key in self.nonexistant_keys:
+            self.assertRaises(KeyError, self.queue.pop, key)
 
         for user in self.users.values():
-            retrieved = []
-            try:
-                while True:
-                    retrieved.append(self.queue.get(bucket_id=user.bucket_id))
-            except KeyError:
-                self.assertFalse([x for x in retrieved if x[0] != user.bucket_id])
-                self.assertEqual([x[1] for x in retrieved], user.goal)
+            while user.bucket_id in self.queue:
+                for entry in self.queue._buckets:
+                    if entry[1] == user.bucket_id:
+                        old_hash_record = entry
+                        break
 
-    def test_get_bucket(self):
-        """Test `FairQueue.get_bucket`"""
-        for user in self.users.values():
-            bucket = self.queue.get_bucket(user.bucket_id)
-            self._check_invariants()
-            self.assertEqual(bucket, user.goal)
+                key, value = self.queue.pop(key=user.bucket_id)
 
-            bucket[0], bucket[1] = bucket[1], bucket[0]
-            self.assertEqual(bucket, self.queue.get_bucket(user.bucket_id),
-                    "Mutations to the list returned by get_bucket() must take effect.")
+                self.assertEqual(key, user.bucket_id)
+                self.assertNotIn(old_hash_record, self.queue._buckets,
+                        "Pop must always update the bucket's ordering key in the hash")
 
-        # Just to make sure it doesn't behave differently than an empty queue
-        self.assertRaises(KeyError, self.queue.get_bucket, 'nonexistant')
+                user.received(value)
 
-    def test_invalid_get(self):
-        """Test reaction to `FairQueue.get` on populated queue"""
-        self.assertRaises(KeyError, self.queue.get, 'nonexistant')
+            self.assertTrue(user.is_satisfied(),
+                "pop(id) failed to retrieve all push(id, ...)'d items")
+
+        # Verify deferred subqueue removal
+        self._check_invariants()
+
+    def test_setitem(self):
+        """Test `FairQueue.__setitem__`"""
+        test_key, test_value = 'foo', [1,2,3]
+        before_value = test_value[:]
+        after_value = test_value[1:]
+
+        self.queue['foo'] = test_value
+        self.assertEqual(self.queue['foo'], before_value,
+                "__setitem__ should insert new subqueues without modification")
+        self.assertEqual(self.queue.pop('foo'), ('foo', 1),
+                "pop('new_key') must behave as expected after __setitem__")
+
+        self.assertEqual(self.queue['foo'], after_value,
+                "pop('new_key') must affect future __getitem__ calls")
+        self.assertEqual(self.queue['foo'], test_value,
+                "If at all possible, existing references to __setitem__'s input"
+                "must remain as mutable references to the subqueue")
