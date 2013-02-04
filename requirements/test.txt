@@ -1,6 +1,4 @@
 nose
 coverage
-docutils
-epydoc
 pep8
 pyflakes
