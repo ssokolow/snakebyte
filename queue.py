@@ -67,6 +67,7 @@ class FairQueue(object):
            allowing people to receive multiple files in a row to "catch up"
            with those who requested much bigger files.
     """
+
     def __init__(self, contents=None, priority_cb=None):
         """Initialize the queue, storing any provided initial state
         using a batch-adding algorithm if available.
