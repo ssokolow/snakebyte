@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>queue.FairQueue</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="queue-module.html">Module&nbsp;queue</a> ::
+        Class&nbsp;FairQueue
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="queue.FairQueue-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class FairQueue</h1><p class="nomargin-top"><span class="codelink"><a href="queue-pysrc.html#FairQueue">source&nbsp;code</a></span></p>
+<pre class="base-tree">
+object --+
+         |
+        <strong class="uidshort">FairQueue</strong>
+</pre>
+
+<hr />
+<p>A queue that maximizes fairness via the following properties:</p>
+<blockquote>
+<ul class="rst-simple">
+<li>Users will never be blocked from entering the queue.</li>
+<li>Users may enqueue as many files as they wish.</li>
+<li>The number of files one user enqueues will not affect others.</li>
+<li>Users cannot game the system by adding and removing queue entries.</li>
+<li>The effect of varying download times on wait times will be minimized.
+<strong>(IN DEVELOPMENT)</strong></li>
+</ul>
+</blockquote>
+<dl class="rst-docutils">
+<dt>It accomplishes this through three techniques:</dt>
+<dd><ul class="rst-first rst-last rst-simple">
+<li>The system maintains one queue per user rather than one global queue</li>
+<li>Whenever a new file is popped from the queue, it comes from the queue
+of the user who has been waiting the longest in wall-clock time.</li>
+<li>New users are added to the queue as if they have just received a file,
+which ensures that attempts to game the system will either increase
+their wait time or leave it unaffected rather than decreasing it.</li>
+</ul>
+</dd>
+</dl>
+<p>At present, it behaves as a simple round-robin queue based on timestamp
+ordering but, because it uses a heap and can take a callback to calculate
+or recalculate a bucket's priority, changes necessary to implement a
+more advanced form of balancing should be minimal with the existing API
+remaining stable. (With the possible exception of adding a new method
+to force a recalculation of a specific bucket's priority once a download's
+total time to completion has become known.)</p>
+<p>Naturally, it need not only be used for users and lists os files.</p>
+<p>Its API follows that of the <tt class="rst-docutils literal">dict</tt> built-in wherever possible,
+though minor variations prevent the methods it implements from being
+drop-in compatible the way <tt class="rst-docutils literal">OrderedDict</tt> is.</p>
+<dl class="rst-docutils">
+<dt>The following API incompatibilities with <tt class="rst-docutils literal">dict</tt> are known:</dt>
+<dd><ul class="rst-first rst-last">
+<li><p class="rst-first"><a href="queue.FairQueue-class.html#__len__" class="link">__len__</a> returns the total number of items in all buckets,
+not the number of buckets accessed by <a href="queue.FairQueue-class.html#__iter__" class="link">__iter__</a> and <a href="queue.FairQueue-class.html#__getitem__" class="link">__getitem__</a>.</p>
+</li>
+<li><p class="rst-first"><a href="queue.FairQueue-class.html#pop" class="link">pop</a>'s behaviour is a cross between <tt class="rst-docutils literal">dict.pop</tt>, <tt class="rst-docutils literal">dict.get</tt>, and
+<tt class="rst-docutils literal">dict.popitem</tt>.</p>
+<blockquote>
+<ul class="rst-simple">
+<li><tt class="rst-docutils literal">dict.pop</tt> may take 1 or 2 arguments, while <tt class="rst-docutils literal">pop</tt> may take 0
+or 1.</li>
+<li><tt class="rst-docutils literal">pop</tt>'s return value is similar to that of <tt class="rst-docutils literal">dict.popitem</tt></li>
+<li>After calling <tt class="rst-docutils literal">pop</tt>, the number of keys in the queue may or may
+not have decreased by 1. With <tt class="rst-docutils literal">dict.pop</tt> it will always
+decrease by 1.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+
+<hr />
+<div class="fields">      <strong>To Do:</strong>
+      <ul class="nomargin-top">
+        <li>
+        Decide on an API for getting the number of buckets more efficiently
+than <tt class="rst-rst-docutils literal rst-docutils literal">len(list(queue))</tt>.
+        </li>
+        <li>
+        Inherit from <tt class="rst-rst-docutils literal rst-docutils literal">UserDict.DictMixin</tt> and unit test what it adds.
+        </li>
+        <li>
+        Once I've got the fserve working, come back and add the support for
+allowing people to receive multiple files in a row to &quot;catch up&quot;
+with those who requested much bigger files.
+        </li>
+      </ul>
+</div><!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contents</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">priority_cb</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Initialize the queue, storing any provided initial state
+using a batch-adding algorithm if available.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__contains__"></a><span class="summary-sig-name">__contains__</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item</span>)</span><br />
+      Implements <tt class="rst-docutils literal">key in queue</tt> as &quot;non-empty bucket exists&quot;.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__contains__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__delitem__"></a><span class="summary-sig-name">__delitem__</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      Remove the specified bucket and all its entries from the queue.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__delitem__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code class="link">list</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#__getitem__" class="summary-sig-name">__getitem__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      Return a given bucket as a mutable list</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__getitem__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__iter__"></a><span class="summary-sig-name">__iter__</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Iterate through all non-empty bucket IDs (keys)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__iter__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__len__"></a><span class="summary-sig-name">__len__</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Implements len(queue) as the total number of items in all buckets</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__len__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__nonzero__"></a><span class="summary-sig-name">__nonzero__</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Maximum-efficiency empty/nonempty test exposed as <tt class="rst-docutils literal">bool()</tt></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__nonzero__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__setitem__"></a><span class="summary-sig-name">__setitem__</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">value</span>)</span><br />
+      Add/replace an entire bucket's subqueue at once</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.__setitem__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_add_to_heap"></a><span class="summary-sig-name">_add_to_heap</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      Common code for adding a key to the heap if not already present.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue._add_to_heap">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><tt class="rst-docutils literal">tuple</tt></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#_find_key_in_heap" class="summary-sig-name" onclick="show_private();">_find_key_in_heap</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      Common code for finding a bucket in the heap.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue._find_key_in_heap">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="clear"></a><span class="summary-sig-name">clear</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Empty the queue in constant time</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.clear">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code class="link">tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="dump"></a><span class="summary-sig-name">dump</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Serialize all state necessary to save the queue to disk using a
+mechanism other than <tt class="rst-docutils literal">pickle</tt>.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.dump">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="keys"></a><span class="summary-sig-name">keys</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return a list of all non-empty buckets</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.keys">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code class="link">tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#pop" class="summary-sig-name">pop</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Remove and return the next item in the queue.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.pop">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#push" class="summary-sig-name">push</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">value</span>)</span><br />
+      Add the provided value to the specified bucket in the queue,
+creating the bucket if necessary.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.push">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS METHODS ==================== -->
+<a name="section-ClassMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="queue.FairQueue-class.html" class="link">FairQueue</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="queue.FairQueue-class.html#load" class="summary-sig-name">load</a>(<span class="summary-sig-arg">cls</span>,
+        <span class="summary-sig-arg">state</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Instantiate a new queue object using state saved by <a href="queue.FairQueue-class.html#load" class="link">load</a>.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="queue-pysrc.html#FairQueue.load">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contents</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">priority_cb</span>=<span class="sig-default">None</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Initialize the queue, storing any provided initial state
+using a batch-adding algorithm if available.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>contents</code></strong> (<code class="link">dict</code> or <tt class="rst-docutils literal">iterable of <span class="pre">2-tuples</span></tt>) - The initial contents for the queue as either a dict or an
+iterable returning <tt class="rst-docutils literal">(bucket, list_of_values)</tt> pairs.</li>
+        <li><p><strong class="pname"><code>priority_cb</code></strong> (<tt class="rst-docutils literal">function(key)</tt>) - A callback which will be used to determine a bucket's new placement
+when updating the queue. Lesser values are considered more urgent.</p>
+<p><tt class="rst-docutils literal">lambda key: time.time()</tt> will be used if none is provided.</p></li>
+    </ul></dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="__getitem__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__getitem__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>)</span>
+    <br /><em class="fname">(Indexing operator)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue.__getitem__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return a given bucket as a mutable list</p>
+<p>Unlike <a href="queue.FairQueue-class.html#pop" class="link">pop</a>, manipulating subqueues this way will not affect which
+bucket will be serviced next.</p>
+  <dl class="fields">
+    <dt>Returns: <code class="link">list</code></dt>
+        <dd>A mutable list</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>KeyError</strong></code> - The requested subqueue does not exist.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_find_key_in_heap"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_find_key_in_heap</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue._find_key_in_heap">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Common code for finding a bucket in the heap.
+  <dl class="fields">
+    <dt>Returns: <tt class="rst-rst-docutils literal rst-docutils literal">tuple</tt></dt>
+        <dd>A list of matching entries suitable for <tt class="rst-docutils literal">heap.find()</tt>.</dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        This is designed on the assumption that <a href="queue.FairQueue-class.html#pop" class="link">pop</a> calls without
+a specific bucket key will happen overwhelmingly more often.
+      </p>
+</div></td></tr></table>
+</div>
+<a name="pop"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">pop</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue.pop">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Remove and return the next item in the queue.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> - If provided, bypass automatic bucket selection and retrieve
+the entry from the specified bucket instead.</li>
+    </ul></dd>
+    <dt>Returns: <code class="link">tuple</code></dt>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>IndexError</strong></code> - The queue is empty.</li>
+        <li><code><strong class='fraise'>KeyError</strong></code> - The requested subqueue does not exist.
+(Overrides <tt class="rst-docutils literal">IndexError</tt>)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="push"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">push</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">value</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue.push">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Add the provided value to the specified bucket in the queue,
+creating the bucket if necessary.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> - Any hashable identifier.</li>
+        <li><strong class="pname"><code>value</code></strong> - The value to enqueue. No limitations on type.</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>TypeError</strong></code> - The given <tt class="rst-docutils literal">key</tt> was not hashable</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="load"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">load</span>(<span class="sig-arg">cls</span>,
+        <span class="sig-arg">state</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+    <br /><em class="fname">Class Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="queue-pysrc.html#FairQueue.load">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Instantiate a new queue object using state saved by <a href="queue.FairQueue-class.html#load" class="link">load</a>.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>state</code></strong> - State as saved by <a href="queue.FairQueue-class.html#load" class="link">load</a>.</li>
+        <li><strong class="pname"><code>kwargs</code></strong> - Arguments to be passed to <a href="queue.FairQueue-class.html#__init__" class="link">__init__</a>.</li>
+    </ul></dd>
+    <dt>Returns: <a href="queue.FairQueue-class.html" class="link">FairQueue</a></dt>
+        <dd>A new instance of the class.</dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>TypeError</strong></code> - The given <tt class="rst-docutils literal">state</tt> was inconsistent with what
+<a href="queue.FairQueue-class.html#load" class="link">load</a> produces.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Feb  4 15:48:30 2013
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
