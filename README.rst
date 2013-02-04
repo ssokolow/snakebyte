@@ -10,5 +10,5 @@ script in Python.
 
 So far, the following components are ready:
 
-    - Round-robin queue with room to grow more sophisticated
+- Round-robin queue with room to grow more sophisticated
 
