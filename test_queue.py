@@ -12,7 +12,11 @@ __license__ = "GNU GPL 3.0 or later"
 import heapq, logging, string, unittest
 log = logging.getLogger(__name__)
 
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+    OrderedDict      # Silence erroneous PyFlakes warning
+except ImportError:  # pragma: no cover
+    from ordereddict import OrderedDict
 
 from queue import FairQueue
 

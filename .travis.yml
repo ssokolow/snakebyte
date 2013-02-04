@@ -2,6 +2,7 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  # TODO: Install the pypy Travis CI is using and figure out how to support it.
 matrix:
     allow_failures:
         - python: "2.6"
@@ -9,4 +10,5 @@ install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq python-epydoc
 - "pip install -r requirements/test.txt --use-mirrors"
+- if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors ordereddict; fi
 script: sh run_tests.sh
