@@ -3,6 +3,9 @@
 """Queue code for SnakeByte FServe
 
 :attention: Until all listed TODOs are resolved, this API is open to revision.
+:todo: Make this and its test suite compatible with Python 3. (This task is
+       of a lower priority since, to the best of my knowledge, X-Chat's Python
+       harness still uses Python 2.
 """
 
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"

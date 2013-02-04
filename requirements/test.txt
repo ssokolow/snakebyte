@@ -1,0 +1,4 @@
+nose
+coverage
+epydoc
+pep8
