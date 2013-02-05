@@ -41,7 +41,7 @@ class FairQueue(object):
     to force a recalculation of a specific bucket's priority once a download's
     total time to completion has become known.)
 
-    Naturally, it need not only be used for users and lists os files.
+    Naturally, it need not only be used for users and lists of files.
 
     Its API follows that of the ``dict`` built-in wherever possible,
     though minor variations prevent the methods it implements from being
