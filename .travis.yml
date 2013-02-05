@@ -11,4 +11,4 @@ install:
 - sudo apt-get install -qq python-epydoc
 - "pip install -r requirements/test.txt --use-mirrors"
 - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install --use-mirrors ordereddict unittest2; fi
-script: sh run_tests.sh
+script: ./run_tests.sh
