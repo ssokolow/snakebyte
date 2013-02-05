@@ -11,6 +11,7 @@
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __version__ = "0.1"
 __license__ = "GNU GPL 3.0 or later"
+__docformat__ = "restructuredtext en"
 
 import heapq, logging, time
 log = logging.getLogger(__name__)

@@ -8,6 +8,7 @@
 
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __license__ = "GNU GPL 3.0 or later"
+__docformat__ = "restructuredtext en"
 
 import heapq, logging, string, sys
 log = logging.getLogger(__name__)
