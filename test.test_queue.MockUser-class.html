@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>exceptions.AssertionError</title>
+  <title>test.test_queue.MockUser</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -34,9 +34,9 @@
   <tr valign="top">
     <td width="100%">
       <span class="breadcrumbs">
-        exceptions ::
-        AssertionError ::
-        Class&nbsp;AssertionError
+        <a href="test-module.html">Package&nbsp;test</a> ::
+        <a href="test.test_queue-module.html">Module&nbsp;test_queue</a> ::
+        Class&nbsp;MockUser
       </span>
     </td>
     <td>
@@ -46,28 +46,22 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="exceptions.AssertionError-class.html"
+            >]&nbsp;|&nbsp;<a href="test.test_queue.MockUser-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class AssertionError</h1><p class="nomargin-top"></p>
+<h1 class="epydoc">Class MockUser</h1><p class="nomargin-top"><span class="codelink"><a href="test.test_queue-pysrc.html#MockUser">source&nbsp;code</a></span></p>
 <pre class="base-tree">
-   object --+            
-            |            
-BaseException --+        
-                |        
-        Exception --+    
-                    |    
-        StandardError --+
-                        |
-                       <strong class="uidshort">AssertionError</strong>
+object --+
+         |
+        <strong class="uidshort">MockUser</strong>
 </pre>
 
 <hr />
-<p>Assertion failed.</p>
+A simple placeholder for a real user in the queue-testing process.
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -92,10 +86,12 @@ BaseException --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="exceptions.AssertionError-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">...</span>)</span><br />
+          <td><span class="summary-sig"><a href="test.test_queue.MockUser-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">bucket_id</span>,
+        <span class="summary-sig-arg">desires</span>)</span><br />
       x.__init__(...) initializes x; see help(type(x)) for signature</td>
           <td align="right" valign="top">
-            
+            <span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -105,15 +101,64 @@ BaseException --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">a new object with type S, a subtype of T</span>
+      <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="exceptions.AssertionError-class.html#__new__" class="summary-sig-name">__new__</a>(<span class="summary-sig-arg">T</span>,
-        <span class="summary-sig-arg">S</span>,
-        <span class="summary-sig-arg">...</span>)</span></td>
+          <td><span class="summary-sig"><a name="request"></a><span class="summary-sig-name">request</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.request">source&nbsp;code</a></span>
             
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="received"></a><span class="summary-sig-name">received</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.received">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_satisfied"></a><span class="summary-sig-name">is_satisfied</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.is_satisfied">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_queue.MockUser-class.html#__iter__" class="summary-sig-name">__iter__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Used for generating a tuple suitable for populating queues when
+gathered in an iterable and fed to __init_.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.__iter__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -123,23 +168,18 @@ BaseException --+
   </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code>BaseException</code></b>:
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__delattr__</code>,
+      <code>__format__</code>,
       <code>__getattribute__</code>,
-      <code>__getitem__</code>,
-      <code>__getslice__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
       <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
       <code>__repr__</code>,
       <code>__setattr__</code>,
-      <code>__setstate__</code>,
-      <code>__str__</code>,
-      <code>__unicode__</code>
-      </p>
-    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
-      <code>__format__</code>,
-      <code>__hash__</code>,
-      <code>__reduce_ex__</code>,
       <code>__sizeof__</code>,
+      <code>__str__</code>,
       <code>__subclasshook__</code>
       </p>
     </td>
@@ -164,10 +204,6 @@ BaseException --+
 </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code>BaseException</code></b>:
-      <code>args</code>,
-      <code>message</code>
-      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
       </p>
@@ -199,11 +235,13 @@ BaseException --+
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">...</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">bucket_id</span>,
+        <span class="sig-arg">desires</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -211,32 +249,29 @@ BaseException --+
   <dl class="fields">
     <dt>Overrides:
         object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
     </dt>
   </dl>
 </td></tr></table>
 </div>
-<a name="__new__"></a>
+<a name="__iter__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__new__</span>(<span class="sig-arg">T</span>,
-        <span class="sig-arg">S</span>,
-        <span class="sig-arg">...</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__iter__</span>(<span class="sig-arg">self</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="test.test_queue-pysrc.html#MockUser.__iter__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  
+  <p>Used for generating a tuple suitable for populating queues when
+gathered in an iterable and fed to __init_.</p>
+<p>The &quot;fresh&quot; indicates that this ignores <a href="test.test_queue.MockUser-class.html#request" class="link">request</a> and <a href="test.test_queue.MockUser-class.html#received" class="link">received</a>.</p>
   <dl class="fields">
-    <dt>Returns: a new object with type S, a subtype of T</dt>
-    <dt>Overrides:
-        object.__new__
-    </dt>
   </dl>
 </td></tr></table>
 </div>

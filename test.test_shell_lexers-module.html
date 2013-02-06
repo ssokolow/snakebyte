@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>queue</title>
+  <title>test.test_shell_lexers</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -34,7 +34,8 @@
   <tr valign="top">
     <td width="100%">
       <span class="breadcrumbs">
-        Module&nbsp;queue
+        <a href="test-module.html">Package&nbsp;test</a> ::
+        Module&nbsp;test_shell_lexers
       </span>
     </td>
     <td>
@@ -44,27 +45,21 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="queue-module.html"
+            >]&nbsp;|&nbsp;<a href="test.test_shell_lexers-module.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
-<h1 class="epydoc">Module queue</h1><p class="nomargin-top"><span class="codelink"><a href="queue-pysrc.html">source&nbsp;code</a></span></p>
-Queue code for SnakeByte FServe
+<h1 class="epydoc">Module test_shell_lexers</h1><p class="nomargin-top"><span class="codelink"><a href="test.test_shell_lexers-pysrc.html">source&nbsp;code</a></span></p>
+Test Suite for shell lexer code for SnakeByte FServe
 
 <hr />
-<div class="fields">      <p><strong>Attention:</strong>
-        Until all listed TODOs are resolved, this API is open to revision.
-      </p>
-      <p><strong>To Do:</strong>
-        Make this and its test suite compatible with Python 3. (This task is
-of a lower priority since, to the best of my knowledge, X-Chat's Python
-harness still uses Python 2.
-      </p>
-      <p><strong>Version:</strong>
-        0.1
+<div class="fields">      <p><strong>To Do:</strong>
+        Figure out how to have all tests for concrete lexers inherit from a
+base class with a single definition of the tests for API compliance
+without having Nose attempt to run the tests in the base class.
       </p>
       <p><strong>Author:</strong>
         Stephan Sokolow (deitarion/SSokolow)
@@ -93,8 +88,24 @@ harness still uses Python 2.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="queue.FairQueue-class.html" class="summary-name">FairQueue</a><br />
-      A queue that maximizes fairness via the following properties:
+        <a href="test.test_shell_lexers.TestLexerInterface-class.html" class="summary-name">TestLexerInterface</a><br />
+      Test that the lexer interface is accurately unimplemented.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_shell_lexers.TestMircLexer-class.html" class="summary-name">TestMircLexer</a><br />
+      Test that the mIRC lexer is accurately dumb.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_shell_lexers.TestPosixLexer-class.html" class="summary-name">TestPosixLexer</a><br />
+      Test that the POSIX lexer is accurately featureful.
     </td>
   </tr>
 </table>
@@ -126,7 +137,7 @@ harness still uses Python 2.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="None">None</code>
+        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'test'"><code class="variable-quote">'</code><code class="variable-string">test</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 </table>
