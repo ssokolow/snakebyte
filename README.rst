@@ -11,4 +11,6 @@ script in Python.
 So far, the following components are ready:
 
 - Round-robin queue with room to grow more sophisticated
+- A command-line lexer interface with implementations for mIRC-style and
+  POSIX-style tokenizing.
 
