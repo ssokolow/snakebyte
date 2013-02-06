@@ -5,7 +5,7 @@
 and a courtesy to users who oftem assume "setup.py" means "setup.py install")
 
 :todo: Integrate this into setup.py once I can make "setup.py install" work
-:todo: Make colorization support cross-platform (http://tinyurl.com/a5td7zp)
+:todo: Make colorization support cross-platform (http://tinyurl.com/bymwyfp)
 :todo: Explore the feasibility of displaying all messages using ``logging``
 """
 
