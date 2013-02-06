@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-"""Temporary test runner for projects not yet ready to `setup.py install`
+"""Temporary test runner for projects not yet ready to ``setup.py install``
 
 (Using this filename is both a reminder to the developer to remedy the problem
 and a courtesy to users who oftem assume "setup.py" means "setup.py install")
@@ -9,11 +9,14 @@ and a courtesy to users who oftem assume "setup.py" means "setup.py install")
 :todo: Explore the feasibility of displaying all messages using ``logging``
 """
 
+__docformat__ = "restructuredtext en"
+
 import os, sys
 from subprocess import call
 
-retcode = 0
+retcode = 0  #: Return code of the last failed command
 def test(msg, command):
+    """Wrapper to remember failures and display task headers"""
     global retcode
 
     print('\x1b[1;34m --== %s ==-- \x1b[0m' % msg)

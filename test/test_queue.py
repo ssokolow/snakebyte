@@ -56,7 +56,7 @@ class MockUser(object):
     #TODO: Still need to decide how to implement testing of ordering fairness
 
 class BaseTestQueue(unittest.TestCase):
-    """Code common to tests which start with empty or populated queues."""
+    """Code common to all `FairQueue` tests."""
     nonexistant_keys = ('nonexistant key', ('nonexistant', 'key'))
     priority_cb = None
     #priority_cb = staticmethod(lambda x:5)
@@ -136,6 +136,7 @@ class BaseTestQueue(unittest.TestCase):
             self.assertIn(user, other, "Queue has subqueues not in other")
 
 class TestEmptyQueue(BaseTestQueue):
+    """Tests which start with an empty queue"""
     def setUp(self):
         super(TestEmptyQueue, self).setUp()
         self.queue = FairQueue(priority_cb=self.priority_cb)
@@ -229,6 +230,7 @@ class TestEmptyQueue(BaseTestQueue):
         self._check_equivalence(populated_queue)
 
 class TestPopulatedQueue(BaseTestQueue):
+    """Tests which start with a populated queue"""
     def setUp(self):
         super(TestPopulatedQueue, self).setUp()
         self.queue = FairQueue(priority_cb=self.priority_cb,
