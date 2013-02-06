@@ -11,7 +11,7 @@ function run() {
 }
 
 print_status " --== Test Suite (With Branch Coverage) ==--"
-run nosetests --with-coverage --cover-tests --cover-branches --cover-erase
+run nosetests
 # TODO: Figure out how to get --cover-min-percentage working
 
 print_status " --== Static Analysis (PyFlakes) ==--"
@@ -21,7 +21,7 @@ print_status " --== Coding Style Check (PEP8) ==--"
 run pep8 *.py
 
 print_status " --== Documentation Syntax Check (EPyDoc, reStructuredText) ==--"
-run epydoc -v --simple-term --fail-on-docstring-warning *.py
+run epydoc --config setup.cfg *.py
 
 if [ "$status" ]; then
     print_error
