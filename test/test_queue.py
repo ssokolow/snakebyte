@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Test Suite for Queue code for SnakeByte FServe
-
-:todo: Get ``coverage.py``'s branch coverage working and make sure there are
-       no branches I forgot to test.
-"""
+"""Test Suite for Queue code for SnakeByte FServe"""
 
 __author__  = "Stephan Sokolow (deitarion/SSokolow)"
 __license__ = "GNU GPL 3.0 or later"
