@@ -18,7 +18,7 @@ print_status " --== Static Analysis (PyFlakes) ==--"
 run pyflakes *.py
 
 print_status " --== Coding Style Check (PEP8) ==--"
-run pep8 *.py
+run pep8
 
 print_status " --== Documentation Syntax Check (EPyDoc, reStructuredText) ==--"
 run epydoc --config setup.cfg *.py
