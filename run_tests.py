@@ -28,8 +28,7 @@ if __name__ == '__main__':
 
     # TODO: Figure out how to get --cover-min-percentage working
     test("Test Suite (With Branch Coverage)", "nosetests")
-    test("Static Analysis (PyFlakes)", ['pyflakes'] + candidates)
-    test("Coding Style Check (PEP8)", "pep8")
+    test("Static Analysis and Coding Style Check (Flake8)", "flake8")
     test("Documentation Syntax Check (EPyDoc, reStructuredText)",
         ["epydoc", "--config", "setup.cfg"] + candidates)
 
