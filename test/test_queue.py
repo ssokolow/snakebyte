@@ -21,7 +21,7 @@ try:                                                      # pragma: no cover
 except ImportError:                                       # pragma: no cover
     from ordereddict import OrderedDict
 
-from queue import FairQueue
+from snakebyte.queue import FairQueue
 
 class MockUser(object):
     """A simple placeholder for a real user in the queue-testing process."""

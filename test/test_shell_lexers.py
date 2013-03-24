@@ -20,7 +20,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:  # pragma: no cover
 else:                                                     # pragma: no cover
     import unittest
 
-from shell_lexers import LexerInterface, mirc_lexer, posix_lexer
+from snakebyte.shell_lexers import LexerInterface, mirc_lexer, posix_lexer
 
 class TestLexerInterface(unittest.TestCase):
     """Test that the lexer interface is accurately unimplemented."""
