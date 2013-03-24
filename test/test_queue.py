@@ -63,12 +63,14 @@ class BaseTestQueue(unittest.TestCase):
     #TODO: Test with constant, monotonic increase, variable increase, etc.
 
     chars = string.digits + string.ascii_letters  #: For building filenames
-    files = ['file%s' % chars[x] for x in range(0, 6)]
+    files = (lambda c: ['file%s' % c[x] for x in range(0, 6)])(chars)
     uids  = [('network%d' % i, 'user%d' % j)
             for i in range(0, 2) for j in range(0, 5)]
 
+    #TODO: Decide how to handle this in Python 3.x where you can't sort
+    #      items of differing types.
     # Add False-evaluating, non-None keys for robustness testing
-    uids += [False, 0]
+    uids += [False, 0, tuple()]
 
     def setUp(self):
         super(BaseTestQueue, self).setUp()
@@ -80,6 +82,7 @@ class BaseTestQueue(unittest.TestCase):
 
         self.assertIn(0, self.users, "Mock user setup failed: 0")
         self.assertIn(False, self.users, "Mock user setup failed: False")
+        self.assertIn(tuple(), self.users, "Mock user setup failed: ()")
 
     def tearDown(self):
         self._check_invariants()
@@ -113,11 +116,11 @@ class BaseTestQueue(unittest.TestCase):
         users_in_heap = [x[1] for x in sorted(self.queue._buckets)]
 
         if isinstance(other, FairQueue):
-            self.assertEquals(len(self.queue), len(other))
-            self.assertEquals(bool(self.queue), bool(other))
+            self.assertEqual(len(self.queue), len(other))
+            self.assertEqual(bool(self.queue), bool(other))
 
             users_in_other_heap = [x[1] for x in sorted(other._buckets)]
-            self.assertEquals(users_in_heap, users_in_other_heap,
+            self.assertEqual(users_in_heap, users_in_other_heap,
                     "Heap ordering not equivalent")
         else:
             other = OrderedDict((x, other[x].goal) for x in other)
@@ -212,7 +215,7 @@ class TestEmptyQueue(BaseTestQueue):
             for entry in iter(user.request, None):
                 before = len(self.queue)
                 self.queue.push(user.bucket_id, entry)
-                self.assertEquals(before + 1, len(self.queue))
+                self.assertEqual(before + 1, len(self.queue))
 
             target_count += 1
         self._check_equivalence(self.users)
@@ -385,7 +388,7 @@ class TestPopulatedQueue(BaseTestQueue):
         """Test ordering behaviour with subqueue-specific pop() calls"""
         ordered_heap = list(sorted(self.queue))
 
-        for pos in (0, -1, len(ordered_heap) / 2, None, Ellipsis):
+        for pos in (0, -1, len(ordered_heap) // 2, None, Ellipsis):
             if pos is None:
                 key, value = self.queue.pop()
             elif pos is Ellipsis:
@@ -395,7 +398,7 @@ class TestPopulatedQueue(BaseTestQueue):
             self.queue.push(key, value)
 
             last_user = list(self.queue)[-1]
-            self.assertEquals(key, last_user,
+            self.assertEqual(key, last_user,
                 "Users who've just been serviced/added should be at the end of"
                 " queue (Last user was %r but expected %r)" % (last_user, key))
 
@@ -410,7 +413,7 @@ class TestPopulatedQueue(BaseTestQueue):
             self.assertNotIn(old_hash_record, self.queue._buckets,
                     "Pop must always update a bucket's hash ordering key")
 
-            self.assertEquals(before - 1, len(self.queue))
+            self.assertEqual(before - 1, len(self.queue))
             self._check_invariants()
             self.users[key].received(value)
 
