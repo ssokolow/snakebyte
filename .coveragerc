@@ -3,7 +3,7 @@ omit =
     */python?.?/functools.py
     */python?.?/shlex.py
     */python?.?/weakref.py
-    */pypy/lib-python/2.7/shlex.py
+    */lib-python/?.?/*.py
     */site-packages/ordereddict.py
     */site-packages/nose/*
     */unittest2/*
