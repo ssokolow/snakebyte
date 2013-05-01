@@ -15,7 +15,10 @@ matrix:
 install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq python-epydoc python-docutils --no-install-recommends
-- "pip install -r requirements/test.txt --use-mirrors"
+- pip install -r requirements/test.txt --use-mirrors
+- pip install coveralls --use-mirrors
 - if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install -r requirements/pre_py27.txt --use-mirrors; fi
 - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -r requirements/pre_py27.txt --use-mirrors; fi
 script: ./run_tests.py
+after_success:
+  - coveralls

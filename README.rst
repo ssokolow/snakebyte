@@ -3,6 +3,10 @@ SnakeByte FServe Components
 
 .. image:: https://travis-ci.org/ssokolow/snakebyte.png
    :target: https://travis-ci.org/ssokolow/snakebyte
+   :alt: Unit Test Status
+.. image:: https://coveralls.io/repos/ssokolow/snakebyte/badge.png?branch=master
+   :target: https://coveralls.io/r/ssokolow/snakebyte
+   :alt: Coverage Status
 
 While not yet usable on their own, this repository is slowly accumulating
 components for building a reliable, featureful, easy-to-use, IRC file-serving
