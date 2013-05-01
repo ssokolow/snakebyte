@@ -5,4 +5,5 @@ omit =
     */python?.?/weakref.py
     */pypy/lib-python/2.7/shlex.py
     */site-packages/ordereddict.py
+    */site-packages/nose/*
     */unittest2/*
