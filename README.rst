@@ -7,6 +7,9 @@ SnakeByte FServe Components
 .. image:: https://coveralls.io/repos/ssokolow/snakebyte/badge.png?branch=master
    :target: https://coveralls.io/r/ssokolow/snakebyte
    :alt: Coverage Status
+.. image:: https://landscape.io/github/ssokolow/snakebyte/master/landscape.png
+   :target: https://landscape.io/github/ssokolow/snakebyte/master
+   :alt: Code Metrics
 
 While not yet usable on their own, this repository is slowly accumulating
 components for building a reliable, featureful, easy-to-use, IRC file-serving
