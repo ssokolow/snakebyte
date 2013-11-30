@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.5"
   - "2.6"
   - "2.7"
   - "3.2"
@@ -16,9 +15,7 @@ install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq python-epydoc python-docutils --no-install-recommends
 - pip install -r requirements/test.txt --use-mirrors
-- if [[ $TRAVIS_PYTHON_VERSION != '2.5' ]]; then pip install coveralls --use-mirrors && export HAS_COVERALLS=1; fi
-- if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install -r requirements/pre_py27.txt --use-mirrors; fi
+- pip install coveralls --use-mirrors
 - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -r requirements/pre_py27.txt --use-mirrors; fi
 script: ./run_tests.py
-after_success:
-- if [[ $HAS_COVERALLS ]]; then coveralls; fi
+after_success: coveralls
