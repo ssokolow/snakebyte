@@ -87,7 +87,7 @@ class LexerInterface(object):
         """
         raise NotImplementedError(_not_implemented_msg)
 
-def mirc_lexer(cmd_string, commands):
+def mirc_lexer(cmd_string, commands):  # pylint: disable=W0613
     """Pseudo-lexer which implements mIRC-style command-line parsing.
 
     The string is split at the first whitespace into two parts:
@@ -105,7 +105,7 @@ def mirc_lexer(cmd_string, commands):
     return cmd_string.split(None, 1)
 mirc_lexer.name = 'mirc'
 
-def posix_lexer(cmd_string, commands):
+def posix_lexer(cmd_string, commands):  # pylint: disable=W0613
     """This lexer implements POSIX-like command-line parsing.
 
     More specifically, it wraps Python's ``shlex.split`` in the default
